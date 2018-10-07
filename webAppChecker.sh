@@ -31,7 +31,7 @@ lookup(){
                 nslookup ${line%?} >/dev/null
                 if [ $?==0 ]
                 then
-                        nslookup ${line%?} | grep -e "Name" -e "Address" | awk 'NR==2,NR==3 {printf "%-40s",$2}'
+                        nslookup ${line%?} | grep -e "Name" -e "Address" | awk 'NR==2,NR==3 {printf "%-60s",$2}'
                         printf "\n"
                 fi
         done | grep -E "[a-zA-Z0-9]" | tee ${1}_lookup.txt
