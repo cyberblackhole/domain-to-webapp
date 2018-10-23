@@ -50,9 +50,9 @@ onlinedomains(){
 
 cleanup(){
 	cat ${1}*.txt > ${1}_results.lst
-	cat ${1}_webapps.txt > ${2}_webapps.lst
+	cat ${1}_webapps.txt > ${1}_webapps.lst
 	rm ${1}*.txt
-	echo "${green}[+] Output saved to ${1}_webapps.lst ${reset}"
+	echo "${green}[+] Output saved to ${1}_results.lst and ${1}_webapps.lst ${reset}"
 }
 
 sub_status=0
