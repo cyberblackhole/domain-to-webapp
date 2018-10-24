@@ -42,7 +42,7 @@ onlinedomains(){
 	echo "${green}[+] Checking WebApplication for above sub-domains ${reset}"
 	cat ${1}_lookup.txt | cut -d "|" -f 1 | while read line
 	do
-	        curl -L -I -s --connect-timeout 3 "http://"${line}"/" | grep "Location" | cut -d " " -f 2 | tee ${1}_online.txt
+	        curl -L -I -s --connect-timeout 3 "http://"${line}"/" | grep "Location" | cut -d " " -f 2 | tee -a ${1}_online.txt
 	done
 	echo "${green}Online Domains Are:${reset}"
 	cat ${1}_online.txt | sort | uniq | tee ${1}_webapps.txt
