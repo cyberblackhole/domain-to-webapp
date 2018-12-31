@@ -11,7 +11,7 @@ A simple bash script for finding web application hosted within a domain
 
 <pre>
 <code>
-$sudo ./webAppChecker.sh businesssolutions.com
+$./webAppChecker businesssolutions.com ./ouput_dir ./scope.txt
  ____                        _         _         __        __   _       _                
 |  _ \  ___  _ __ ___   __ _(_)_ __   | |_ ___   \ \      / /__| |__   / \   _ __  _ __  
 | | | |/ _ \| '_ ` _ \ / _` | | '_ \  | __/ _ \   \ \ /\ / / _ \ '_ \ / _ \ | '_ \| '_ \ 
@@ -71,7 +71,12 @@ https://jiratest.businesssolutions.com/secure/MyJiraHome.jspa
 https://www.businesssolutions.com/
 http://www.businesssolutions.com
 
-[+] Output saved to businesssolutions.com_results.lst and businesssolutions.com_webapps.lst
+28 total subdomains found
+28 total subdomains in scope found
+16 total webapps found
+8 total webapps in scope found
+8 total unique ips found
+[+] Output saved to ./outpu_dir
 </code>
 </pre>
 
