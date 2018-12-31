@@ -11,28 +11,33 @@ banner(){
 }
 
 create_files(){
-	touch ${1}_subfinderdomains.txt ${1}_filtereddomains.txt ${1}_lookup.txt ${1}_online.txt ${1}_webapps.txt ${1}_results.lst ${1}_online.lst
-	chmod 666 ${1}_subfinderdomains.txt ${1}_filtereddomains.txt ${1}_lookup.txt ${1}_online.txt ${1}_webapps.txt ${1}_results.lst ${1}_online.lst
+	touch ${2}/${1}_alldomains.txt ${2}/${1}_filtereddomains.txt ${2}/${1}_lookup.txt ${2}/${1}_online.txt ${2}/${1}_inscope_webapps.txt
+    if [ $? -ne 0 ]
+    then
+        echo "${red}[!] Oops! problem where encountered while creating files for ${1}  ${reset}"
+        exit 1
+    fi
+	chmod 666 ${2}/${1}_alldomains.txt ${2}/${1}_filtereddomains.txt ${2}/${1}_lookup.txt ${2}/${1}_online.txt ${2}/${1}_inscope_webapps.txt
 }
 
 subfinder(){
 	echo "${green}[+] Started subfinder for ${1} ${reset}"
 	echo "${yellow}[!] Please be patient this might take a while depending on the domain: ${1} ${reset}"
-	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 | grep -E "^(([a-zA-Z0-9](-?[a-zA-Z0-9])*)\.)*[a-zA-Z0-9](-?[a-zA-Z0-9])+\.[a-zA-Z0-9]{2,}" | tee -a $1_subfinderdomains.txt
-	if [ $?==0 ]
+	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 | grep -E "^(([a-zA-Z0-9](-?[a-zA-Z0-9])*)\.)*[a-zA-Z0-9](-?[a-zA-Z0-9])+\.[a-zA-Z0-9]{2,}" | tee -a ${2}/${1}_alldomains.txt
+	if [ $? -eq 0 ]
         then
-                echo "${green}[+] Successfully completed subfinder for ${1}${reset}"
-		substatus=0
-		sort $1_subfinderdomains.txt | uniq | sed 's/^\.//' > ${1}_filtereddomains.txt
+            echo "${green}[+] Successfully completed subfinder for ${1}${reset}"
+		    sort ${2}/${1}_alldomains.txt | uniq -u | sed 's/^\.//' | grep -f ${3} > ${2}/${1}_filtereddomains.txt
+            sub_status=0
         else
-                echo "${red}[!] Oops! problem where encountered by subfinder for ${1}  ${reset}"
-                substatus=1
+            echo "${red}[!] Oops! problem where encountered by subfinder for ${1}  ${reset}"
+            sub_status=1
         fi
 }
 
 lookup(){
 	echo "${green}[+] IP Address Lookup Started for above sub-domains ${reset}"
-	cat ${1}_filtereddomains.txt | while read line
+	cat ${2}/${1}_filtereddomains.txt | while read line
 	do
 	        nslookup ${line%?} >/dev/null
 	        if [ $?==0 ]
@@ -40,35 +45,51 @@ lookup(){
 	                nslookup ${line%?} | grep -e "Name" -e "Address" | awk 'NR==2,NR==3 {printf "%s|",$2}'
 	                printf "\n"
 	        fi
-	done | grep -E "[a-zA-Z0-9]" | tee ${1}_lookup.txt
+	done | grep -E "[a-zA-Z0-9]" | tee -a ${2}/${1}_lookup.txt
+    cut -d"|" -f2 ${2}/${1}_lookup.txt | sort | uniq -u >> ${2}/${1}_uniqueips.lst
 }
 
 
 onlinedomains(){
 	echo "${green}[+] Checking WebApplication for above sub-domains ${reset}"
-	cat ${1}_lookup.txt | cut -d "|" -f 1 | while read line
+	cat ${2}/${1}_lookup.txt | cut -d "|" -f 1 | sort | uniq -u | while read line
 	do
-	        curl -L -I -s --connect-timeout 3 "http://"${line}"/" | grep "Location" | cut -d " " -f 2 | tee -a ${1}_online.txt
+	    curl -L -I -s --connect-timeout 3 "http://"${line}"/" | grep "Location" | cut -d " " -f 2 | tee -a ${2}/${1}_online.txt
 	done
 	echo "${green}Successfully completed Web-App Enumeration${reset}"
-	cat ${1}_online.txt | sort | uniq >> ${1}_webapps.txt
+	cat ${2}/${1}_online.txt | sort | uniq -u | grep -f $3 >> ${2}/${1}_inscope_webapps.txt
 }
 
 cleanup(){
-
-	cat ${1}*.txt > ${1}_results.lst
-	cat ${1}_webapps.txt > ${1}_online.lst
-	rm ${1}*.txt
-	echo "${green}[+] Output saved to ${1}_results.lst and ${1}_webapps.lst ${reset}"
+    cp ${2}/${1}_inscope_webapps.txt ${2}/${1}_inscope_webapps.lst
+    cp ${2}/${1}_online.txt ${2}/${1}_all_online_webapps.lst
+    cp ${2}/${1}_filtereddomains.txt ${2}/${1}_inscope_domains.lst
+    cp ${2}/${1}_alldomains.txt ${2}/${1}_online_domains.lst
+    cp ${2}/${1}_lookup.txt ${2}/${1}_lookup.lst
+    rm ${2}/${1}*.txt
+	echo "`wc -l ${2}/${1}_online_domains.lst | cut -d" " -f1` total subdomains found"
+    echo "`wc -l ${2}/${1}_inscope_domains.lst | cut -d" " -f1` total subdomains in scope found"
+    echo "`wc -l ${2}/${1}_all_online_webapps.lst | cut -d" " -f1` total webapps found"
+    echo "`wc -l ${2}/${1}_inscope_webapps.lst | cut -d" " -f1` total webapps in scope found"
+	echo "`wc -l ${2}/${1}_uniqueips.lst | cut -d" " -f1` total unique ips found"
+	echo "${green}[+] Output saved to ${2}  ${reset}"
 }
 
-banner
-create_files $1
-subfinder $1
-if [ sub_status==0 ]
+if [ $# -lt 3 ]
 then
-	lookup $1
-	onlinedomains $1
+	echo "${red}USAGE: webAppChecker domain_name output_directory scope_file${reset}"
+    echo "${red}Example: webAppChecker example.com ./example.com ./scope.txt ${reset}"
+	exit 1
 fi
-cleanup $1
+
+
+banner
+create_files $1 $2
+subfinder $1 $2 $3
+if [ sub_status -eq 0 ]
+then
+	lookup $1 $2
+	onlinedomains $1 $2 $3
+fi
+cleanup $1 $2
 
