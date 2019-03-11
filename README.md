@@ -49,16 +49,16 @@ www.us.businesssolutions.com
 www.webcast.businesssolutions.com
 
 [+] IP Address Lookup Started for above sub-domains 
-audit360.businesssolutions.com|52.66.93.63                                                 
-autoconfig.us.businesssolutions.com|192.185.46.78                                               
-autod.ms-acdc.office.com|40.100.137.56                                               
-www2.jobdiva.com|173.251.125.134                                             
-confluence.businesssolutions.com|13.232.169.63                                               
-cpanel.businesssolutions.com|192.185.46.78                                               
-helpdesk.businesssolutions.com|182.72.97.74                                                
-incontrol.businesssolutions.com|13.127.69.79                                                
-jira.businesssolutions.com|35.154.173.102                                              
-jiratest.businesssolutions.com|13.232.205.62                                               
+audit360.businesssolutions.com|5.66.93.6                                                 
+autoconfig.us.businesssolutions.com|192.18.1.78                                               
+autod.ms-acdc.office.com|4.10.17.56                                               
+www2.jobdiva.com|17.25.125.13                                             
+confluence.businesssolutions.com|1.22.169.63                                               
+cpanel.businesssolutions.com|19.185.46.78                                               
+helpdesk.businesssolutions.com|12.72.97.74                                                
+incontrol.businesssolutions.com|13.17.69.79                                                
+jira.businesssolutions.com|5.154.13.102                                              
+jiratest.businesssolutions.com|1.22.205.62                                               
 
 [+] Checking WebApplication for above sub-domains 
 Online Domains Are:
